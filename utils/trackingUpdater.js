@@ -29,7 +29,8 @@ async function updateAllTrackings(client) {
                 ticketData.tracking.trackingNumber, 
                 trackingInfo, 
                 config.carrier, 
-                config.embedColor
+                config.embedColor,
+                config.carrierName
             );
 
             await message.edit({
