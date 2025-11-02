@@ -1,0 +1,26 @@
+[
+  {
+    "channelId": "1434664217708859445",
+    "userId": "462635310724022285",
+    "createdAt": 1762121016605,
+    "externalTicket": true,
+    "tracking": {
+      "trackingNumber": "0082800082909720917128",
+      "messageId": "1434664269995184250",
+      "channelId": "1434664217708859445",
+      "lastUpdate": 1762121568854
+    }
+  },
+  {
+    "channelId": "1434664403827163308",
+    "userId": "462635310724022285",
+    "createdAt": 1762121089110,
+    "externalTicket": true,
+    "tracking": {
+      "trackingNumber": "0082800082909720948689",
+      "messageId": "1434664574065447054",
+      "channelId": "1434664403827163308",
+      "lastUpdate": 1762121569470
+    }
+  }
+]
