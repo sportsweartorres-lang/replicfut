@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { trackPackage, createTrackingEmbed } = require('../utils/tracking');
 const config = require('../config.json');
+const { saveTickets } = require('../utils/dataStore');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,27 +14,24 @@ module.exports = {
     
     async execute(interaction, client) {
         const channel = interaction.channel;
-        
-        if (!channel.name.startsWith(config.ticketPrefix)) {
-            return interaction.reply({
-                content: '❌ Este comando solo se puede usar en canales de tickets.',
-                ephemeral: true
-            });
-        }
-
         const trackingNumber = interaction.options.getString('numero');
-        const ticketData = client.tickets.get(channel.id);
+        
+        let ticketData = client.tickets.get(channel.id);
         
         if (!ticketData) {
-            return interaction.reply({
-                content: '❌ No se encontró información del ticket.',
-                ephemeral: true
-            });
+            ticketData = {
+                userId: interaction.user.id,
+                createdAt: Date.now(),
+                channelId: channel.id,
+                externalTicket: true
+            };
+            client.tickets.set(channel.id, ticketData);
+            console.log(`📝 Nuevo ticket externo registrado en canal: ${channel.name}`);
         }
 
         if (ticketData.tracking) {
             return interaction.reply({
-                content: `❌ Ya hay un seguimiento activo en este ticket para el número: \`${ticketData.tracking.trackingNumber}\`\n\nPara cambiar el número de seguimiento, primero cierra este ticket y crea uno nuevo.`,
+                content: `❌ Ya hay un seguimiento activo en este ticket para el número: \`${ticketData.tracking.trackingNumber}\`\n\n💡 Puedes crear otro ticket con /ticket para rastrear un pedido diferente.`,
                 ephemeral: true
             });
         }
@@ -58,6 +56,8 @@ module.exports = {
                 channelId: channel.id,
                 lastUpdate: Date.now()
             };
+
+            await saveTickets(client.tickets);
 
             await interaction.followUp({
                 content: '✅ Seguimiento configurado correctamente. El mensaje ha sido anclado y se actualizará automáticamente.',

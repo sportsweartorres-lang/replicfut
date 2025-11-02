@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, ChannelType } = require('discord.js');
 const config = require('../config.json');
+const { saveTickets } = require('../utils/dataStore');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,47 +11,15 @@ module.exports = {
         const guild = interaction.guild;
         const member = interaction.member;
         
-        const existingTicketInMemory = Array.from(client.tickets.values()).find(
-            ticket => ticket.userId === member.id
-        );
-
-        if (existingTicketInMemory) {
-            const channel = await guild.channels.fetch(existingTicketInMemory.channelId).catch(() => null);
-            if (channel) {
-                return interaction.reply({
-                    content: `❌ Ya tienes un ticket abierto: ${channel}`,
-                    ephemeral: true
-                });
-            } else {
-                client.tickets.delete(existingTicketInMemory.channelId);
-            }
-        }
-
-        const normalizedUsername = member.user.username.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        const expectedChannelName = `${config.ticketPrefix}${normalizedUsername}`;
-        
-        const existingChannel = guild.channels.cache.find(
-            channel => channel.name === expectedChannelName && channel.type === ChannelType.GuildText
-        );
-
-        if (existingChannel) {
-            client.tickets.set(existingChannel.id, {
-                userId: member.id,
-                createdAt: Date.now(),
-                channelId: existingChannel.id
-            });
-            
-            return interaction.reply({
-                content: `❌ Ya tienes un ticket abierto: ${existingChannel}`,
-                ephemeral: true
-            });
-        }
-
         await interaction.deferReply({ ephemeral: true });
+        
+        const timestamp = Date.now();
+        const normalizedUsername = member.user.username.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const uniqueChannelName = `${config.ticketPrefix}${normalizedUsername}-${timestamp.toString().slice(-6)}`;
 
         try {
             const ticketChannel = await guild.channels.create({
-                name: expectedChannelName,
+                name: uniqueChannelName,
                 type: ChannelType.GuildText,
                 parent: config.ticketCategoryId || null,
                 permissionOverwrites: [
@@ -106,9 +75,11 @@ module.exports = {
 
             client.tickets.set(ticketChannel.id, {
                 userId: member.id,
-                createdAt: Date.now(),
+                createdAt: timestamp,
                 channelId: ticketChannel.id
             });
+
+            await saveTickets(client.tickets);
 
             await interaction.editReply({
                 content: `✅ Ticket creado: ${ticketChannel}`,

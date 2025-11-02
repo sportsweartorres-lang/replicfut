@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const { createTranscript } = require('discord-html-transcripts');
 const config = require('../config.json');
+const { saveTickets } = require('../utils/dataStore');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -69,6 +70,8 @@ module.exports = {
             }
 
             client.tickets.delete(channel.id);
+            
+            await saveTickets(client.tickets);
 
             setTimeout(async () => {
                 await channel.delete().catch(console.error);
