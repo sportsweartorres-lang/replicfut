@@ -2,12 +2,14 @@
 
 ## Descripción del Proyecto
 Bot de Discord con sistema completo de tickets que incluye:
-- Sistema de tickets con crear/cerrar
+- Sistema de tickets con crear/cerrar (múltiples tickets por usuario)
+- Persistencia automática de datos que sobrevive reinicios del bot
 - Generación automática de transcripts en HTML
 - Envío de transcripts al canal configurado y por DM al usuario
 - Gestión de usuarios (añadir/remover del ticket)
 - Seguimiento automático de pedidos con 17TRACK para transportista MJ
 - Sistema de actualización automática cada 10 minutos para tracking
+- Tracking funciona en tickets creados por otros bots/sistemas
 - Mensajes anclados con información de seguimiento en tiempo real
 - Interfaz con botones de Discord
 
@@ -27,7 +29,10 @@ Bot de Discord con sistema completo de tickets que incluye:
 │   └── buttonHandler.js # Manejo de botones
 ├── utils/             # Utilidades
 │   ├── tracking.js    # Funciones para 17TRACK
-│   └── trackingUpdater.js # Sistema de actualización automática
+│   ├── trackingUpdater.js # Sistema de actualización automática
+│   └── dataStore.js   # Sistema de persistencia de datos
+├── data/              # Datos persistentes (ignorado en git)
+│   └── tickets.json   # Información de tickets y trackings
 ├── index.js           # Archivo principal del bot
 ├── deploy-commands.js # Script para registrar comandos
 ├── config.json        # Configuración del bot
@@ -81,13 +86,16 @@ Bot de Discord con sistema completo de tickets que incluye:
 - Validación de canales antes de ejecutar comandos
 
 ## Estado Actual
-✅ Sistema de tickets implementado
+✅ Sistema de tickets con múltiples tickets por usuario
+✅ Persistencia de datos con archivos JSON
+✅ Restauración automática de trackings al reiniciar
 ✅ Generación de transcripts
 ✅ Envío por DM y canal
 ✅ Gestión de usuarios en tickets
 ✅ Integración con 17TRACK
+✅ Tracking en canales externos (otros bots)
 ✅ Interfaz con botones
-⏳ Pendiente: Usuario debe proporcionar DISCORD_TOKEN y CLIENT_ID
+✅ Bot configurado y en ejecución
 
 ## Próximos Pasos
 1. Usuario proporciona token del bot
@@ -97,6 +105,10 @@ Bot de Discord con sistema completo de tickets que incluye:
 5. Usar `/setup` en Discord para configurar canales y roles
 
 ## Cambios Recientes
+- 2025-11-02: **Sistema de persistencia completo**: Los tickets y trackings ahora se guardan automáticamente y se restauran al reiniciar el bot
+- 2025-11-02: **Múltiples tickets por usuario**: Eliminada la limitación de un ticket por usuario
+- 2025-11-02: **Tracking en canales externos**: El comando `/track` ahora funciona en cualquier canal, no solo tickets creados por este bot
+- 2025-11-02: **Limpieza automática**: El sistema elimina automáticamente datos de canales que ya no existen
 - 2025-11-02: Implementación del sistema de tracking automático con actualización cada 10 minutos
 - 2025-11-02: Implementación inicial del bot completo con todas las funcionalidades
 
@@ -125,7 +137,15 @@ El bot ahora incluye un sistema avanzado de seguimiento de pedidos:
 - Logs en consola cada vez que actualiza
 - Se detiene automáticamente cuando el bot se desconecta (SIGINT/SIGTERM)
 
-### Limitaciones:
-- **Almacenamiento en memoria**: Los trackings activos se pierden si el bot se reinicia
-- Solución: Los usuarios pueden volver a ejecutar `/track` en el ticket para reactivar el seguimiento
-- El intervalo se limpia correctamente al detener el bot para evitar memory leaks
+### Persistencia de Datos:
+- ✅ **Guardado automático**: Todos los tickets y trackings se guardan automáticamente en `data/tickets.json`
+- ✅ **Restauración al reiniciar**: El bot carga automáticamente todos los tickets y trackings activos al iniciar
+- ✅ **Limpieza inteligente**: Elimina automáticamente datos de canales que ya no existen
+- ✅ **Sincronización continua**: Los cambios se guardan inmediatamente después de cada operación
+- El intervalo de actualización se limpia correctamente al detener el bot para evitar memory leaks
+
+### Características Avanzadas:
+- **Múltiples tickets**: Los usuarios pueden tener varios tickets abiertos simultáneamente
+- **Canales únicos**: Cada ticket tiene un nombre único basado en usuario + timestamp
+- **Tickets externos**: El bot puede trackear pedidos en canales creados por otros sistemas
+- **Limpieza automática**: Los trackings inválidos se eliminan y persisten automáticamente

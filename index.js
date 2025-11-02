@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, Collection, EmbedBuilder, PermissionFlagsBits
 const fs = require('fs');
 const path = require('path');
 const { startTrackingUpdater, stopTrackingUpdater } = require('./utils/trackingUpdater');
+const { loadTickets, saveTickets, cleanupOldData } = require('./utils/dataStore');
 require('dotenv').config();
 
 const client = new Client({
@@ -42,25 +43,37 @@ if (fs.existsSync(eventsPath)) {
     }
 }
 
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`✅ Bot conectado como ${client.user.tag}`);
     console.log(`📊 Servidores: ${client.guilds.cache.size}`);
     console.log(`👥 Usuarios: ${client.guilds.cache.reduce((a, g) => a + g.memberCount, 0)}`);
     
     client.user.setActivity('🎫 Sistema de Tickets', { type: 'WATCHING' });
     
+    console.log('📂 Cargando datos guardados...');
+    const loadedTickets = await loadTickets();
+    client.tickets = loadedTickets;
+    
+    console.log('🧹 Limpiando canales inexistentes...');
+    await cleanupOldData(client);
+    
+    console.log('🔄 Iniciando sistema de actualización de tracking...');
     startTrackingUpdater(client);
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('\n🛑 Deteniendo bot...');
+    console.log('💾 Guardando datos...');
+    await saveTickets(client.tickets);
     stopTrackingUpdater();
     client.destroy();
     process.exit(0);
 });
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('\n🛑 Deteniendo bot...');
+    console.log('💾 Guardando datos...');
+    await saveTickets(client.tickets);
     stopTrackingUpdater();
     client.destroy();
     process.exit(0);
