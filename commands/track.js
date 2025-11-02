@@ -42,7 +42,7 @@ module.exports = {
 
         try {
             const trackingInfo = await trackPackage(trackingNumber, config.carrier);
-            const trackEmbed = createTrackingEmbed(trackingNumber, trackingInfo, config.carrier, config.embedColor);
+            const trackEmbed = createTrackingEmbed(trackingNumber, trackingInfo, config.carrier, config.embedColor, config.carrierName);
 
             await interaction.editReply({
                 content: '📌 Seguimiento iniciado. Este mensaje se actualizará automáticamente cada 10 minutos.',
@@ -70,7 +70,7 @@ module.exports = {
             const errorEmbed = new EmbedBuilder()
                 .setColor('#ff0000')
                 .setTitle('❌ Error al Configurar Seguimiento')
-                .setDescription(`No se pudo configurar el seguimiento del pedido.\n\n**Número:** ${trackingNumber}\n**Transportista:** ${config.carrier}`)
+                .setDescription(`No se pudo configurar el seguimiento del pedido.\n\n**Número:** ${trackingNumber}\n**Transportista:** ${config.carrierName || config.carrier}`)
                 .addFields({
                     name: '🔗 Rastrear Manualmente',
                     value: `[Ver en 17TRACK](https://www.17track.net/en/track?nums=${trackingNumber})`
