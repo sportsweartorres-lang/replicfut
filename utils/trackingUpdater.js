@@ -1,10 +1,12 @@
 const { trackPackage, createTrackingEmbed } = require('./tracking');
+const { saveTickets } = require('./dataStore');
 const config = require('../config.json');
 
 let updateInterval = null;
 
 async function updateAllTrackings(client) {
     let updatedCount = 0;
+    let cleanedCount = 0;
     
     for (const [channelId, ticketData] of client.tickets.entries()) {
         if (!ticketData.tracking) continue;
@@ -14,6 +16,7 @@ async function updateAllTrackings(client) {
             if (!channel) {
                 console.log(`Canal ${channelId} no encontrado, eliminando tracking.`);
                 delete ticketData.tracking;
+                cleanedCount++;
                 continue;
             }
 
@@ -21,6 +24,7 @@ async function updateAllTrackings(client) {
             if (!message) {
                 console.log(`Mensaje de tracking ${ticketData.tracking.messageId} no encontrado.`);
                 delete ticketData.tracking;
+                cleanedCount++;
                 continue;
             }
 
@@ -48,7 +52,12 @@ async function updateAllTrackings(client) {
         }
     }
 
-    return updatedCount;
+    if (cleanedCount > 0) {
+        console.log(`🧹 ${cleanedCount} tracking(s) inválido(s) eliminado(s)`);
+        await saveTickets(client.tickets);
+    }
+
+    return { updated: updatedCount, cleaned: cleanedCount };
 }
 
 function startTrackingUpdater(client) {
@@ -70,8 +79,12 @@ function startTrackingUpdater(client) {
         }
 
         console.log(`🔄 Actualizando ${activeTrackings} tracking(s) activo(s)...`);
-        const updated = await updateAllTrackings(client);
-        console.log(`✅ Actualización completada: ${updated} tracking(s) actualizados.`);
+        const result = await updateAllTrackings(client);
+        console.log(`✅ Actualización completada: ${result.updated} tracking(s) actualizados, ${result.cleaned} eliminados.`);
+        
+        if (result.updated > 0) {
+            await saveTickets(client.tickets);
+        }
         
     }, UPDATE_INTERVAL);
 }
