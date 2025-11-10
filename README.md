@@ -213,3 +213,5 @@ Si encuentras algún problema o tienes sugerencias, no dudes en abrir un issue.
 ---
 
 **Desarrollado con ❤️ para Discord**
+
+<a href="https://github.com/sportsweartorres-lang/replicfut">Tracking Bot 4 Replicfut</a> © 2025 POR <a href="https://discord.gg/MeYCP9g6cP">Patorca</a> tiene licencia bajo <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
